@@ -5,12 +5,13 @@ const openai = new OpenAI({
 });
 
 export default async function handler(req, res) {
+  // CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") {
-    res.status(200).end();
+    res.status(200).end(); // <--- очень важно!
     return;
   }
 
@@ -18,12 +19,12 @@ export default async function handler(req, res) {
     try {
       const { message } = req.body;
 
-      const completion = await openai.chat.completions.create({
+      const openaiResponse = await openai.chat.completions.create({
         model: "gpt-3.5-turbo",
         messages: [{ role: "user", content: message }],
       });
 
-      const reply = completion.choices[0].message.content;
+      const reply = openaiResponse.choices[0].message.content;
       res.status(200).json({ reply });
     } catch (error) {
       console.error("OpenAI Error:", error);
@@ -33,3 +34,4 @@ export default async function handler(req, res) {
     res.status(405).json({ error: "Method Not Allowed" });
   }
 }
+
